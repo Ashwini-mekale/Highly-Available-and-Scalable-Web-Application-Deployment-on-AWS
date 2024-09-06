@@ -175,14 +175,13 @@ Now that ALB has been created, it's time to place the instances behind the load 
 
 4. Now, let's test load to see whether Auto Scaling works well. On your EC2 instance, enter the commands shown below. We are going to set option -c with 4 workers and -v to enable verbose logging. After some time, the CPU Utilization has spiked past 30%.
 
-5. Run this command multiple times, the idea is to apply a reasonable amount of stress in order to make this work. Press CTRL^C to back out and reapply an additional stress command as needed.
+Run this command multiple times, the idea is to apply a reasonable amount of stress in order to make this work. Press CTRL^C to back out and reapply an additional stress command as needed.
 
-6. Wait for about 5 minutes (300 seconds) and click the Activity tab to see the additional EC2 instances deployed according to the scaling policy.
+5. Wait for about 5 minutes (300 seconds) and click the Activity tab to see the additional EC2 instances deployed according to the scaling policy.
 
-   <br><br>
+6. When you click on the Instance management tab, you can see that two additional instances have sprung up and a total of four are up and running.
 
+7. If you use the ALB DNS that you copied earlier to access and refresh the web page, you can see that it is hosting the web page in two instances that were not there before.
 
-8. When you click on the Instance management tab, you can see that two additional instances have sprung up and a total of four are up and running.
+ <br><br>
 
-
-9. If you use the ALB DNS that you copied earlier to access and refresh the web page, you can see that it is hosting the web page in two instances that were not there before.
