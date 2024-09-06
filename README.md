@@ -21,10 +21,10 @@ Amazon Virtual Private Cloud (Amazon VPC) allows you to start AWS resources with
 
 
 
-
+<br><br>
 # Launch a web server instance
 Amazon Elastic Compute Cloud (Amazon EC2) is a web service that provides secure, resizable compute capacity in the cloud. It is designed to make web-scale cloud computing easier for developers. Amazon EC2’s simple web service interface allows you to obtain and configure capacity with minimal friction. It provides you with complete control of your computing resources and lets you run on Amazon’s proven computing environment.
-
+<br><br>
 ## Launch instance and connect to web service
 
 - First, let's create our Web Server instance. We will launch an Amazon Linux 2 instance, bootstrap Apache/PHP, and install a basic web page that will display information about our instance. Click on EC2 Dashboard near the top of the leftmost menu. And Click on Launch instances.
@@ -50,7 +50,7 @@ Select my IP for both HTTP and SSH traffic as the Source type.
 
 11. Wait for the instance to pass the Status Checks to finish loading. Open a new browser tab and browse the Web Server by entering the EC2 instance’s Public DNS name into the browser. The EC2 instance’s Public DNS name can be found in the console by reviewing the Public IPv4 DNS name line highlighted above. You should see a website that looks like the following.
 
-
+<br><br>
 ## Connect to your Linux instance using Session Manager
 
 1. Session Manager is a fully managed AWS Systems Manager capability that lets you manage your Amazon EC2 instances through an interactive one-click browser-based shell or through the AWS CLI. You can use Session Manager to start a session with an instance in your account. After the session is started, you can run bash commands as you would through any other connection type.
@@ -66,7 +66,7 @@ Select my IP for both HTTP and SSH traffic as the Source type.
 6. Go back Amazon EC2 console. In the navigation pane, under Instances, choose Instances. Choose your EC2 instance from the list and click Actions. In the Actions menu, choose Security, Modify IAM role.
 
 7. For IAM role, select the instance profile you created SSMInstanceProfile. Then click on Update IAM role.
-
+<br><br>
 ## Access the web service
 
 1. In the EC2 instance console, select the instance you want to connect to, and then click the Connect button.
@@ -83,12 +83,12 @@ Select my IP for both HTTP and SSH traffic as the Source type.
 
 3. Verify in the console that the image creation request is completed. In the left navigation panel, Click the AMIs button located under IMAGES. You can see the Status of the AMI that you just created. It will show either Pending or Available.
 
-
+<br><br>
 # Deploy auto-scaling web service
 
 - We will deploy a web service that can automatically scale out/in under load and ensure high availability. We use the web server AMI created in the previous chapter and the network infrastructure named Project-VPC-Lab.
 
-
+<br><br>
 ## Configure Application Load Balancer
 
 1. From the EC2 Management Console in the left navigation panel, click Load Balancers under Load Balancing. Then click Create Load Balancer. In the Select load balancer type, click the Create button under Application Load Balancer.
@@ -107,8 +107,8 @@ Select my IP for both HTTP and SSH traffic as the Source type.
 
 8. Again, move into the Load balancers page, click the refresh button, and select Web-TG. And then Click Create load balancer.
 
-
-# configure launch template
+<br><br>
+## configure launch template
 Now that ALB has been created, it's time to place the instances behind the load balancer. To configure an Amazon EC2 instance to start with Auto Scaling Group, we will use the Launch Template to create an Auto Scaling group.
 
 1. From the left navigation panel of the EC2 console, select Security Groups under the Network & Security heading and click Create Security Group in the upper right corner.
@@ -118,8 +118,8 @@ Now that ALB has been created, it's time to place the instances behind the load 
 3. Leave outbound rules' default settings and click Create Security Group to create a new security group. This creates a security group that allows traffic only for HTTP connections (TCP 80) that enter the instance via ALB from the Internet.
 
 
-
-# Create a launch template
+<br><br>
+## Create a launch template
 
 1. In the EC2 console, select Launch Templates from the left navigation panel. Then click Create Launch Template.
 
@@ -135,7 +135,7 @@ Now that ALB has been created, it's time to place the instances behind the load 
 
 7. After checking the values set in Summary on the right, click Create launch template to create a template.
 
-
+<br><br>
 ## Set Auto Scaling Group
 1. Enter the EC2 console and select Auto Scaling Groups at the bottom of the left navigation panel. Then click the Create Auto Scaling group button to create an Auto Scaling Group.
 
@@ -161,7 +161,7 @@ Now that ALB has been created, it's time to place the instances behind the load 
 
 10. Instances created through the Auto Scaling group can also be viewed from the EC2 Instance menu.
 
-
+<br><br>
 # Check web service and test
 
 1. To access the Application Load Balancer configured for the web service, click the Load Balancers menu in the EC2 console and select the Web-ALB you created earlier. Copy DNS name from the basic configuration.
@@ -179,8 +179,10 @@ Now that ALB has been created, it's time to place the instances behind the load 
 
 6. Wait for about 5 minutes (300 seconds) and click the Activity tab to see the additional EC2 instances deployed according to the scaling policy.
 
+   <br><br>
 
-7. When you click on the Instance management tab, you can see that two additional instances have sprung up and a total of four are up and running.
+
+8. When you click on the Instance management tab, you can see that two additional instances have sprung up and a total of four are up and running.
 
 
-8. If you use the ALB DNS that you copied earlier to access and refresh the web page, you can see that it is hosting the web page in two instances that were not there before.
+9. If you use the ALB DNS that you copied earlier to access and refresh the web page, you can see that it is hosting the web page in two instances that were not there before.
