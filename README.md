@@ -3,185 +3,274 @@
 ![Screenshot 2024-09-06 133858](https://github.com/user-attachments/assets/c77b768a-54e1-439f-b2a4-620856edb9d1)
 <br><br>
 
-# Create a VPC
-Amazon Virtual Private Cloud (Amazon VPC) allows you to start AWS resources with a user-defined virtual network. This virtual network, along with the benefits of using AWS's scalable infrastructure, is very similar to the existing network operating in the customer's own data center.
+# Introduction 
+## Overview:
+- This project focuses on designing and deploying a highly available and scalable web application using core AWS services such as EC2, VPC, IAM, ALB, and Auto Scaling.
+The goal is to create an architecture that can handle traffic spikes, ensure minimal downtime, and dynamically adjust resources.
 
-## Create VPC through VPC Wizard
-1. On the AWS console, select VPC from the service menu. Open it in a new tab.
+## Key Objectives:
+- Utilize a Virtual Private Cloud (VPC) to isolate and secure the network.
+- Implement EC2 instances with a custom Amazon Machine Image (AMI) to speed up deployment.
+- Achieve load balancing with an Application Load Balancer (ALB).
+- Enable auto-scaling for dynamic instance scaling.
+- Integrate monitoring and security best practices throughout the process.
 
-2. Select VPC Dashboard and click Create VPC to create your own VPC.
+<br><br>
 
-3. To create a space to provision AWS resources used in this lab, we will create a VPC and Subnets. Select VPC and more in Resource to create a tab and change the name tag to Project-VPC-Lab. Leave the default setting for IPv4 CIDR block.
+# Create VPC with Subnets, NAT Gateway, and AZs
 
-4. To design high availability architecture, we create 2 subnet space and select 2a and 2b for Customize AZs. And set the CIDR value of the public subnet that can communicate directly with the Internet as shown in the screen below. Set the CIDR value of the private subnet as
+- What is a VPC? Virtual Private Cloud (VPC) is a secure, isolated network within AWS.
 
-5. You can use a NAT gateway so that instances in your private subnets can connect to services outside your VPC, but external services cannot initiate direct connections to these instances. In this lab, we will create a NAT gateway in only one Availability Zone to save cost. Also, for DNS options, enable both DNS hostnames and DNS resolution. After confirming the setting value, click the Create VPC button.
+## Creating Subnets:
+- Public subnets for Load Balancers, NAT Gateway, and other internet-facing services.
+- Private subnets for EC2 instances and RDS databases.
 
-6. As the VPC is created, you can see the process of creating network-related resources as shown in the screen below. For NAT Gateway, provisioning may take longer compared to other resources.
+## NAT Gateway:
+- Allows EC2 instances in private subnets to connect to the internet for software updates while remaining inaccessible from the public internet.
 
+- Availability Zones (AZs): Use multiple AZs to ensure fault tolerance and high availability.
+
+- Best Practices: Ensure proper routing between public and private subnets with Route Tables. 
+
+<br><br>
+
+![image](https://github.com/user-attachments/assets/07ed6cf4-2a2d-4e17-a2c1-af03805327be)
+
+<br><br>
+
+![image](https://github.com/user-attachments/assets/b02443b5-a03a-4104-9f1d-741020e3ed25)
+
+<br><br>
+
+# Launch Web Server Instances
+
+## Launch EC2 Instances:
+- Select appropriate instance types (e.g., t2.micro for development or m5.large for production).
+- Use an Auto Scaling group for dynamic scalability.
+
+## Security Group Setup:
+- Define inbound and outbound traffic rules (e.g., allow HTTP, HTTPS).
+- Use least privilege access for better security.
+
+## Execute User Data:
+- Automate configuration tasks such as installing web servers (Apache, Nginx) by using user data scripts.
+- Example: #!/bin/bash for installing software during instance launch.
+- Best Practices: Keep security groups and key pairs secure and regularly review them. 
+
+<br><br>
+
+![image](https://github.com/user-attachments/assets/9bd461a6-e0da-4245-bb43-bd6df90886a1)
 
 
 <br><br>
-# Launch a web server instance
-Amazon Elastic Compute Cloud (Amazon EC2) is a web service that provides secure, resizable compute capacity in the cloud. It is designed to make web-scale cloud computing easier for developers. Amazon EC2’s simple web service interface allows you to obtain and configure capacity with minimal friction. It provides you with complete control of your computing resources and lets you run on Amazon’s proven computing environment.
-<br><br>
-## Launch instance and connect to web service
 
-- First, let's create our Web Server instance. We will launch an Amazon Linux 2 instance, bootstrap Apache/PHP, and install a basic web page that will display information about our instance. Click on EC2 Dashboard near the top of the leftmost menu. And Click on Launch instances.
+# Create IAM Policy and IAM Role
 
-1. In Name, put the value Web server. And check the default setting for Amazon Machine Image below.
+## IAM Policies:
+- Create policies that define permissions for EC2 instances to interact with other AWS services (e.g., S3, CloudWatch, RDS).
+- Example: Provide access to S3 for file storage or CloudWatch for monitoring.
 
-2. Select t2.micro in Instance Type.
+## IAM Roles:
+- Define a role for EC2 instances to assume. Instead of embedding AWS credentials into applications, assign roles to instances to securely access services.
+- Example: An EC2 instance can use an IAM role to securely retrieve files from S3.
 
-3. Select the Proceed without a key pair (Not recommended).
-
-4. Click the Edit button in Network settings to set the space where EC2 will be located.
-
-6. Choose the VPC we created previously, and for the subnet, choose the public subnet. Auto-assign public IP is set to Enable.
-
-7. Right below it, create Security groups to act as a network firewall. Security groups will specify the protocols and addresses you want to allow in your firewall policy. For the security group you are currently creating, this is the rule that applies to the EC2 that will be created. After entering Project - Web Server in Security group name and Description, select Add Security group rule and set HTTP to Type.
-Select my IP for both HTTP and SSH traffic as the Source type.
-
-8. All other values accept the default values, expand by clicking on the Advanced Details tab at the bottom of the screen.
-
-9. Enter the following values in the User data field and select Launch instance.
-
-10. Click the View Instances button in the lower right-hand portion of the screen to view the list of EC2 instances. Once your instance has launched, you will see your Web Server as well as the Availability Zone the instance is in, and the publicly routable DNS name. Click the checkbox next to your web server to view details about this EC2 instance.
-
-11. Wait for the instance to pass the Status Checks to finish loading. Open a new browser tab and browse the Web Server by entering the EC2 instance’s Public DNS name into the browser. The EC2 instance’s Public DNS name can be found in the console by reviewing the Public IPv4 DNS name line highlighted above. You should see a website that looks like the following.
+- Best Practices: Follow the principle of least privilege, only granting permissions that are necessary for the task. 
 
 <br><br>
-## Connect to your Linux instance using Session Manager
 
-1. Session Manager is a fully managed AWS Systems Manager capability that lets you manage your Amazon EC2 instances through an interactive one-click browser-based shell or through the AWS CLI. You can use Session Manager to start a session with an instance in your account. After the session is started, you can run bash commands as you would through any other connection type.
-
-2. On the AWS Management Console, search for the IAM console and open it in a new tab. In the navigation pane, choose Roles, and then choose Create role.
-
-3. Under Select type of trusted entity, choose AWS service. Immediately under Choose the service that will use this role, choose EC2, and then choose Next.
-
-4. On the Attach permissions policies page, do the following: Use the Search field to locate the AmazonSSMManagedInstanceCore. Select the box next to its name. Choose Next.
-
-5. For Role name, enter a name for your new instance profile, such as SSMInstanceProfile. Choose Create role. The system returns you to the Roles page.
-
-6. Go back Amazon EC2 console. In the navigation pane, under Instances, choose Instances. Choose your EC2 instance from the list and click Actions. In the Actions menu, choose Security, Modify IAM role.
-
-7. For IAM role, select the instance profile you created SSMInstanceProfile. Then click on Update IAM role.
-<br><br>
-## Access the web service
-
-1. In the EC2 instance console, select the instance you want to connect to, and then click the Connect button.
-
-2. In the Connect to instance page, select Session Manager. Review the Session Manager usage section for the advantages of using Session Manager. Choose Connect. A new session will be started in a new tab. After the session is started, you can run bash commands as you would through any other connection type.
-
-## Create a custom AMI
-
-- In the AWS EC2 console, you can create a Custom AMI to meet your needs. This can then be used for future EC2 instance creation. On this page, let's create an AMI using the web server instance that we built earlier.
-
-1. In the EC2 console, select the instance that we made earlier in this lab, and click Actions > Image and templates > Create Image.
-
-2. In the Create Image console, type as shown below and press Create image to create the custom image.
-
-3. Verify in the console that the image creation request is completed. In the left navigation panel, Click the AMIs button located under IMAGES. You can see the Status of the AMI that you just created. It will show either Pending or Available.
+![image](https://github.com/user-attachments/assets/799d95de-583a-46d5-9676-813b72d6d13a)
 
 <br><br>
-# Deploy auto-scaling web service
 
-- We will deploy a web service that can automatically scale out/in under load and ensure high availability. We use the web server AMI created in the previous chapter and the network infrastructure named Project-VPC-Lab.
+# Attach IAM Role to EC2 Instances
 
-<br><br>
-## Configure Application Load Balancer
+## Attaching the IAM Role:
+- Once the IAM role is created, attach it to the EC2 instances for secure access to AWS resources.
+- This allows instances to interact with AWS services without requiring stored credentials.
 
-1. From the EC2 Management Console in the left navigation panel, click Load Balancers under Load Balancing. Then click Create Load Balancer. In the Select load balancer type, click the Create button under Application Load Balancer.
+- Security Benefits: IAM roles improve security by automatically rotating credentials and avoiding hard-coded access keys.
 
-2. Name the load balancer. In this case, the name is Web-ALB. Leave the other settings at their default values.
-
-3. Scrolling down a little bit, there is a section for selecting availability zones. First, Select our vpc created previously. For Availability Zones select the 2 public subnets that were created previously.
-
-4. In the Security groups section, click the Create new security group hyperlink. Enter Web-ALB-SG as the security group name and check the VPC information. Click the Add rule button and select HTTP as the Type and Anywhere-IPv4 as the Source. And create a security group.
-
-5. Return to the load balancer page again, click the refresh button, and select the Web-ALB-SG you just created. Remove the default security group.
-
-6. In the Listeners and routing column, click Create target group. Put Web-TG for the Target group name and check all settings same with the screenshot below. After that click Next button.
-
-7. This is where we would register our instances. However, there are no instances to register at this moment. Click Create target group.
-
-8. Again, move into the Load balancers page, click the refresh button, and select Web-TG. And then Click Create load balancer.
+- Best Practices: Regularly audit role policies and permissions to ensure they are still valid. 
 
 <br><br>
-## configure launch template
-Now that ALB has been created, it's time to place the instances behind the load balancer. To configure an Amazon EC2 instance to start with Auto Scaling Group, we will use the Launch Template to create an Auto Scaling group.
 
-1. From the left navigation panel of the EC2 console, select Security Groups under the Network & Security heading and click Create Security Group in the upper right corner.
-
-2. Scroll down to modify the Inbound rules. First, select the Add rule button to add the Inbound rules, and select HTTP in the Type. For Source, type ALB in the search bar to search for the security group created earlier Web-ALB-SG. This will configure the security group to only receive HTTP traffic coming from ALB.
-
-3. Leave outbound rules' default settings and click Create Security Group to create a new security group. This creates a security group that allows traffic only for HTTP connections (TCP 80) that enter the instance via ALB from the Internet.
-
+![image](https://github.com/user-attachments/assets/c4fbf7a3-da8e-411a-a18a-e6fb48739862)
 
 <br><br>
-## Create a launch template
 
-1. In the EC2 console, select Launch Templates from the left navigation panel. Then click Create Launch Template.
+# Create a Custom Amazon Machine Image (AMI)
 
-2. Let's proceed with setting up the launch template step by step. First, set the Launch template name and Template version description as shown below, and select Checkbox for Provide guidance in Auto Scaling guidance. Select this checkbox to enable the template you create to be utilized by Amazon EC2 Auto Scaling.
+## What is an AMI?
+- An AMI is a pre-configured operating system image, which includes all software, configurations, and updates required for your application.
 
-3. Scroll down to set the launch template contents. In Amazon Machine Image(AMI), set the AMI to Web Server v1, which was created in the previous EC2 lab. You can find it by typing Web Server v1 in the search section, or you can scroll down to find it in the My AMI section. Next, select t2.micro for the instance type. We are not going to configure SSH access because this is only for the Web service server. Therefore, we do not use key pairs.
+## Creating an AMI:
+- Customize your EC2 instance with your application, system configurations, and installed software.
+- Use the "Create Image" option to save the instance as a reusable AMI.
 
-4. Leave the other parts as default. Let's take a look at the Network Settings section. First, in Networking platform select Virtual Private Cloud(VPC). In the security group section, find and apply ASG-Web-Inst-SG created before.
+## Advantages:
+- Faster instance launches, as the AMI comes pre-configured with software and settings.
+- Useful for Auto Scaling groups and rapid deployments.
 
-5. Follow the Storage's default values without any additional change. Go down and define the Instance tags. Click Add tag and Name for Key and Web Instance for Value. Select Resource types as Instances and Volumes.
-
-6. Finally, in the Advanced details tab, set the IAM instance profile to SSMInstanceProfile. Leave all other settings as default, and click the Create launch template button at the bottom right to create a launch template.
-
-7. After checking the values set in Summary on the right, click Create launch template to create a template.
-
-<br><br>
-## Set Auto Scaling Group
-1. Enter the EC2 console and select Auto Scaling Groups at the bottom of the left navigation panel. Then click the Create Auto Scaling group button to create an Auto Scaling Group.
-
-2. In [Step 1: Choose launch template or configuration], specify the name of the Auto Scaling group. In this project, we will designate it as Web-ASG. Then select the launch template that you just created named Web. The default settings for the launch template will be displayed. Confirm and click the lower right Next button.
-
-
-3. Set the network configuration with the Purging options and instance types as default. Choose Project-Lab-vpc for VPC, select Private subnet 1 and Private subnet 2 for Subnets. When the setup is completed, click the Next button.
-  
-
-4. Next, proceed to set up load balancing. First, select Attach to an existing load balancer. Then in Choose a target group for your load balancer, select Web-TG created during ALB creation. At the Monitoring, select checkbox for Enable group metrics collection within CloudWatch. This allows CloudWatch to see the group metrics that can determine the status of Auto Scaling groups. Click the Next button at the bottom right.
-
-5. In the step of Configure group size and scaling policies, set the scaling policy for Auto Scaling Group. In the Group size column, specify Desired capacity and Minimum capacity as 2 and Maximum capacity as 4. Keep the number of instances to 2 as usual, and allow scaling of at least 2 and up to 4 depending on the policy.
-
-
-6. In the Scaling policies section, select Target tracking scaling policy and type 30 in Target value. This is a scaling policy for adjusting the number of instances based on the CPU average utilization remaining at 30% overall. Leave all other settings as default and click the Next button in the lower right corner.
-
-7. We will not Add notifications. Click the Next button to move to the next step. In the Add tags step, we will simply assign a name tag. Click Add tag, type Name in Key, ASG-Web-Instance in Value, and then click Next.
-
-
-8. Now we are in the final stage of review. After checking the all settings, click the Create Auto Scaling Group button at the bottom right.
-
-9. The Auto Scaling group has been created. You can see the Auto Scaling group created in the Auto Scaling group console as shown below.
-
-10. Instances created through the Auto Scaling group can also be viewed from the EC2 Instance menu.
+- Best Practices: Regularly update your AMIs to include the latest patches and software versions. 
 
 <br><br>
-# Check web service and test
 
-1. To access the Application Load Balancer configured for the web service, click the Load Balancers menu in the EC2 console and select the Web-ALB you created earlier. Copy DNS name from the basic configuration.
+![image](https://github.com/user-attachments/assets/4be437b1-d2da-4e20-9721-3902b60bf567)
+
+<br><br>
+
+![image](https://github.com/user-attachments/assets/7cef7b2c-5406-4765-9828-9ea07cc3dff1)
+
+<br><br>
+
+![image](https://github.com/user-attachments/assets/158921e3-f92e-4dae-86e1-018564f061da)
+
+<br><br>
+
+# Create an Application Load Balancer (ALB)
+
+## Application Load Balancer (ALB):
+- The ALB distributes incoming traffic across multiple EC2 instances in different Availability Zones to ensure high availability and resilience.
+- ALBs handle HTTP and HTTPS requests and are designed for advanced routing and target health checks.
+
+## Security Group for ALB:
+- Allow only inbound HTTP/HTTPS traffic.
+- Ensure the security group is tightly controlled to prevent unauthorized access.
+
+## Target Groups:
+- Assign EC2 instances in private subnets to the target group, where the ALB routes traffic.
+- Health checks ensure traffic is only routed to healthy instances.
+
+- Best Practices: Use path-based routing for multiple services and always enable health checks for each target. 
+
+<br><br>
+
+![image](https://github.com/user-attachments/assets/b5ca862c-341f-4729-bed4-e7728c31dde5)
+
+<br><br>
+
+![image](https://github.com/user-attachments/assets/9ca1d2c9-4231-4d3e-aa83-d40b34dc63f3)
+
+<br><br>
+
+![image](https://github.com/user-attachments/assets/7a98b501-45f6-480b-98da-78f348cbb862)
+
+<br><br>
+
+# Create Auto Scaling Group Security Group
+
+## Auto Scaling Group (ASG) Security:
+- Define a security group for instances launched by the Auto Scaling group.
+- Ensure only necessary ports (e.g., HTTP, HTTPS) are open to the ALB.
+
+## Benefits of Auto Scaling: 
+- Automatically increases or decreases the number of running instances based on demand.
+
+## Security Best Practices:
+- Limit inbound rules for Auto Scaling instances to minimize the attack surface.
+- Use IAM roles to manage access for instances to communicate securely with other AWS services.
+
+<br><br>
+
+![image](https://github.com/user-attachments/assets/55f6e7b5-4fcd-4f8a-9d20-d487fd05df7c)
+
+<br><br>
+
+# Configure Launch Template with Custom AMI
+
+## Launch Template:
+- Configure a launch template with settings such as instance type, security groups, key pairs, and the custom AMI created earlier.
+
+## Using Custom AMI:
+- The custom AMI ensures that all instances launched by Auto Scaling come pre-configured with the necessary software and configurations.
+
+## Launch Template Advantages: 
+- Ensures consistency across instances and simplifies scaling by using pre-configured settings.
+
+- Best Practices: Keep launch templates updated to reflect any changes in the AMI or instance configurations. 
+
+<br><br>
+
+![image](https://github.com/user-attachments/assets/6f74fdff-0d22-4def-b661-cbf043469cc6)
+
+<br><br>
+
+![image](https://github.com/user-attachments/assets/56421d1c-321a-40c2-8d08-2fefe5792e1b)
+
+<br><br>
+
+![image](https://github.com/user-attachments/assets/2cd24358-4c81-4c5f-8d0e-5849a5d7736b)
+
+<br><br>
+
+# Configure an Auto Scaling Group
+
+## Auto Scaling Group Setup:
+- Define scaling policies based on metrics like CPU utilization or network traffic.
+- Scale-out policy: Add more instances when demand increases.
+- Scale-in policy: Terminate instances when demand decreases to save costs.
+
+## Availability Zones:
+- Ensure the Auto Scaling group spans multiple AZs to distribute instances and prevent failure from impacting availability.
+
+- Best Practices: Set conservative scaling policies initially, then adjust based on actual traffic patterns. 
+
+<br><br>
+
+# Test Auto-Scaling and Manual Settings
+
+## Simulate Load Testing:
+- Use stress testing tools like Apache JMeter or AWS Load Testing to generate high traffic and test the Auto Scaling policies.
+- Ensure that instances are automatically added and removed as the traffic changes.
+
+## Manual Scaling Adjustments:
+- Modify scaling thresholds based on performance.
+- Optimize scaling policies by adjusting cooldown periods or using predictive scaling features in AWS.
+
+- Best Practices: Monitor scaling performance with CloudWatch metrics and alarms, ensuring that the application maintains high availability. 
+<br><br>
+
+![image](https://github.com/user-attachments/assets/3a5571e7-ab5b-4f4d-81b7-b8e3a3a322d3)
+
+<br><br>
+
+![image](https://github.com/user-attachments/assets/d1ffe76a-3a9a-45ae-ad01-9102341c3f4c)
+
+<br><br>
+
+![image](https://github.com/user-attachments/assets/d1ae5b77-60de-407c-8158-5f9271c3b7c7)
+
+<br><br>
+
+# Conclusion
+
+## Project Summary:
+- Successfully deployed a multi-tier web application using AWS services that ensures high availability, scalability, and fault tolerance.
+Implemented core AWS services like VPC, EC2, IAM, ALB, and Auto Scaling to build a robust infrastructure.
+
+## Key Benefits:
+- High Availability: The application is distributed across multiple Availability Zones, ensuring minimal downtime.
+- Scalability: Auto Scaling dynamically adjusts the number of instances based on traffic demands, optimizing performance and cost.
+- Security: IAM roles and security groups ensure the application and instances are securely managed.
+- Resilience: With built-in fault tolerance through multi-AZ deployment and load balancing, the application can handle failure scenarios without service interruption.
+
+<br><br>
+
+# References and Resources
+
+## AWS Documentation:
+- Amazon EC2 - Elastic Compute Cloud documentation.
+- Amazon VPC - Virtual Private Cloud documentation.
+- Amazon IAM - Identity and Access Management.
+- Amazon ALB - Application Load Balancer documentation.
+- AWS Auto Scaling - Information on Auto Scaling features.
+
+## GitHub Repository:
+- Highly Available and Scalable Web Application on AWS - Source code for project implementation.
+
+## Additional Resources:
+- AWS Whitepapers: Architecting for the Cloud.
+- AWS Training and Certification.
 
 
-2. Open a new tab in your web browser and paste the copied DNS name. You can see that web service is working as shown below. In the figure below, you can see that the web instance is running this web page.
-
-
-3. If you click the refresh button here, you can see that the host serving the web page has been replaced with an instance of another availability zone area as shown below. This is because routing algorithms in ALB target groups behave Round Robin by default.
-
-
-4. Now, let's test load to see whether Auto Scaling works well. On your EC2 instance, enter the commands shown below. We are going to set option -c with 4 workers and -v to enable verbose logging. After some time, the CPU Utilization has spiked past 30%.
-
-Run this command multiple times, the idea is to apply a reasonable amount of stress in order to make this work. Press CTRL^C to back out and reapply an additional stress command as needed.
-
-5. Wait for about 5 minutes (300 seconds) and click the Activity tab to see the additional EC2 instances deployed according to the scaling policy.
-
-6. When you click on the Instance management tab, you can see that two additional instances have sprung up and a total of four are up and running.
-
-7. If you use the ALB DNS that you copied earlier to access and refresh the web page, you can see that it is hosting the web page in two instances that were not there before.
-
- <br><br>
 
